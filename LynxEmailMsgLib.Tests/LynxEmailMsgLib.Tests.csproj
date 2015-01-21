@@ -36,6 +36,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -50,8 +53,18 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="UnitTest_NewCertificate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LynxEmailMsgClient\LynxEmailMsgClient.csproj">
+      <Project>{ee95cfcd-8f9b-4a9d-a442-8f484fb07aff}</Project>
+      <Name>LynxEmailMsgClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LynxEmailMsgLib\LynxEmailMsgLib.csproj">
+      <Project>{dd73064b-800c-4834-891b-8822c26716d4}</Project>
+      <Name>LynxEmailMsgLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
