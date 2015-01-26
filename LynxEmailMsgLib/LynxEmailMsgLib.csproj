@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,13 +43,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crypto\CertificateGenerationRequest.cs" />
+    <Compile Include="Crypto\CertificateGenerator.cs" />
+    <Compile Include="Crypto\CertificateSigner.cs" />
+    <Compile Include="Crypto\CertificateSigningRequest.cs" />
     <Compile Include="Crypto\CertProperties.cs" />
-    <Compile Include="Crypto\CryptContext.cs" />
-    <Compile Include="Crypto\CryptKey.cs" />
+    <Compile Include="Crypto\CertUtil.cs" />
     <Compile Include="Crypto\DisposableObject.cs" />
-    <Compile Include="Crypto\KeyExchangeKey.cs" />
-    <Compile Include="Crypto\KeyType.cs" />
-    <Compile Include="Crypto\SignatureKey.cs" />
+    <Compile Include="Crypto\Utilities.cs" />
     <Compile Include="Crypto\Win32ErrorHelper.cs" />
     <Compile Include="Crypto\Win32Native.cs" />
     <Compile Include="Message.cs" />
@@ -58,38 +60,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="UI\BackgroundCertGenForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\BackgroundCertGenForm.designer.cs">
-      <DependentUpon>BackgroundCertGenForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\CertDetailsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\CertDetailsForm.designer.cs">
-      <DependentUpon>CertDetailsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\GenerateSelfSignedCertForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\GenerateSelfSignedCertForm.designer.cs">
-      <DependentUpon>GenerateSelfSignedCertForm.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\BackgroundCertGenForm.resx">
-      <DependentUpon>BackgroundCertGenForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\CertDetailsForm.resx">
-      <DependentUpon>CertDetailsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\GenerateSelfSignedCertForm.resx">
-      <DependentUpon>GenerateSelfSignedCertForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -3,89 +3,109 @@
 // Want to learn more about .NET? Visit pluralsight.com today!
 //
 using System;
-using LynxEmailMsgLib.Crypto.UI;
+using System.Diagnostics;
 using System.Windows.Forms;
 using LynxEmailMsgLib.Crypto;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace LynxEmailMsgClient
 {
-    public static class Program
+    class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
 
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            CryptoConfig.AddOID("2.25.9223372036854775807.1.1", new string[] { "LynxEmailSystemServerCommunications" });
 
-            new GenerateSelfSignedCertForm().ShowDialog();
+            var CA = CreateCertificateAuthority();
+
+            Console.WriteLine("CA: " + CA);
+
+            bool success = LynxEmailMsgLib.Crypto.Utilities.StoreCert(StoreName.Root, StoreLocation.LocalMachine, CA);
+
+            //var subordinate = CreateSubordinate();
+
+            //Console.WriteLine("Subordinate: " + subordinate);
+
+            //var signedSubordinate = SignIt(subordinate, CA);
+
+            //Console.WriteLine("Signed: " + signedSubordinate);
+
+            Console.Write("Press enter to close...");
+
+            Console.ReadLine();
         }
 
-        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private static X509Certificate2 SignIt(X509Certificate2 subordinate, X509Certificate2 CA)
         {
-            MessageBox.Show(((Exception)e.ExceptionObject).ToString());
-        }
-
-        // note you'll need a reference to System.Security.dll to get support for X509Certificate2UI.
-        public static void GenSelfSignedCert()
-        {
-            using (CryptContext ctx = new CryptContext()) {
-                ctx.Open();
-
-                X509Certificate2 cert = ctx.CreateSelfSignedCertificate(
-                    new SelfSignedCertProperties {
-                        IsPrivateKeyExportable = true,
-                        KeyBitLength = 4096,
-                        Name = new X500DistinguishedName("cn=localhost"),
-                        ValidFrom = DateTime.Today.AddDays(-1),
-                        ValidTo = DateTime.Today.AddYears(1),
-                    });
-
-                X509Certificate2UI.DisplayCertificate(cert);
-            }
-        }
-
-        public static void GenAndStoreSelfSignedCertByForm(string sDN)
-        {
-            // A self-signed cert needs to be placed in the Root to be usable
-            // To save to the LocalMachine it must be an Administrator or Service Account
-            // A user can only store to Current User
-            X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
-            store.Open(OpenFlags.ReadWrite);
-
-            BackgroundCertGenForm form = new BackgroundCertGenForm();
-            form.CertProperties = new SelfSignedCertProperties {
-                Name = new X500DistinguishedName("CN=" + sDN),
-                ValidFrom = DateTime.UtcNow.AddDays(-1),
-                ValidTo = DateTime.UtcNow.AddYears(1),
-                KeyBitLength = 4096,
-                IsPrivateKeyExportable = true
+            var csr = new CertificateSigningRequest() {
+                KeySpecification = CertificateSigner.AT_SIGNATURE,
+                Certificate = subordinate,
+                ExpirationLength = subordinate.NotAfter - subordinate.NotBefore
             };
-            form.ShowDialog();
 
-            X509Certificate2 cert = form.Certificate;
-          
-            if (cert != null) {
-                byte[] pfx = cert.Export(X509ContentType.Pfx);
-                cert = new X509Certificate2(pfx, (string)null, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
-
-                store.Add(cert);
-            }
-            store.Close();
-
-            if (cert != null) {
-                new CertDetailsForm {
-                    Certificate = cert,
-                    CertStoreLocation = StoreLocation.LocalMachine,
-                    CertStoreName = StoreName.Root
-                }.ShowDialog();
-            }
+            return CertificateSigner.SignCertificate(csr, CA);
         }
+
+        private static X509Certificate2 CreateCertificateAuthority()
+        {
+            CspParameters parameters = new CspParameters() {
+                ProviderName = "Microsoft Enhanced RSA and AES Cryptographic Provider",
+                ProviderType = 24,
+                KeyContainerName = Guid.NewGuid().ToString(),
+                KeyNumber = (int)KeyNumber.Signature,
+                Flags = CspProviderFlags.UseMachineKeyStore
+            };
+
+            var oids = new OidCollection();
+            oids.Add(new Oid("2.25.9223372036854775807.1.1", "LynxEmailSystemServerCommunications"));
+
+            var extensions = new X509ExtensionCollection();
+
+            extensions.Add(new X509BasicConstraintsExtension(false, true, 1, false));
+            extensions.Add(new X509KeyUsageExtension(
+                X509KeyUsageFlags.DataEncipherment |
+                X509KeyUsageFlags.DigitalSignature |
+                X509KeyUsageFlags.KeyAgreement |
+                X509KeyUsageFlags.KeyCertSign |
+                X509KeyUsageFlags.KeyEncipherment |
+                X509KeyUsageFlags.NonRepudiation, false));
+            extensions.Add(new X509EnhancedKeyUsageExtension(oids, true));
+
+            var cgr = new CertificateGenerationRequest() {
+                Subject = "LynxEmailSysSvr_2001:470:1d:80b:e5b6:2d69:3897:336a",
+                Parameters = parameters,
+                SignatureAlgorithm = "1.2.840.113549.1.1.13",  // szOID_RSA_SHA512RSA
+                ExpirationLength = TimeSpan.FromDays(365 * 5),
+                KeySize = 4096,
+                Extensions = extensions
+            };
+
+            var cert = CertificateGenerator.CreateSelfSignedCertificate(cgr);
+            return cert;
+        }
+
+        private static System.Security.Cryptography.X509Certificates.X509Certificate2 CreateSubordinate()
+        {
+            var oids = new OidCollection();
+            oids.Add(new Oid("1.3.6.1.5.5.7.3.2")); // client auth
+            oids.Add(new Oid("1.3.6.1.4.1.311.20.2.2")); // smart card login
+
+            var extensions = new X509ExtensionCollection();
+            extensions.Add(new X509EnhancedKeyUsageExtension(oids, true));
+
+            var cgr = new CertificateGenerationRequest() {
+                Subject = "steve@syfuhs.net",
+                Extensions = extensions,
+                ExpirationLength = TimeSpan.FromDays(365 * 5),
+                KeySize = 2048
+            };
+
+            var cert = CertificateGenerator.CreateSelfSignedCertificate(cgr);
+            return cert;
+        }
+
 
     }
 }

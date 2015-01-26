@@ -8,6 +8,11 @@ namespace LynxEmailMsgLib.Crypto
 {
     internal static class Win32ErrorHelper
     {
+        // Usage sample below
+        //  
+        //if (IntPtr.Zero == certContext)
+        //        Win32ErrorHelper.ThrowExceptionIfGetLastErrorIsNotZero();
+
         internal static void ThrowExceptionIfGetLastErrorIsNotZero()
         {
             int win32ErrorCode = Marshal.GetLastWin32Error();
