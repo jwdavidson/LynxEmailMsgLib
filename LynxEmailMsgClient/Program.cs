@@ -16,7 +16,7 @@ namespace LynxEmailMsgClient
         static void Main(string[] args)
         {
 
-            CryptoConfig.AddOID("2.25.9223372036854775807.1.1", new string[] { "LynxEmailSystemServerCommunications" });
+            CryptoConfig.AddOID("1.3.6.1.4.1.45177.1.1", new string[] { "LynxEmailSystemServerCommunications Root Server" });
 
             var CA = CreateCertificateAuthority();
 
@@ -59,7 +59,7 @@ namespace LynxEmailMsgClient
             };
 
             var oids = new OidCollection();
-            oids.Add(new Oid("2.25.9223372036854775807.1.1", "LynxEmailSystemServerCommunications"));
+            oids.Add(new Oid("1.3.6.1.4.1.45177.1.1", "LynxEmailSystemServerCommunications Root Server"));
 
             var extensions = new X509ExtensionCollection();
 
