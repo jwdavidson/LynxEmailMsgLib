@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crypto\AesUtilities.cs" />
     <Compile Include="Crypto\CertificateGenerationRequest.cs" />
     <Compile Include="Crypto\CertificateGenerator.cs" />
     <Compile Include="Crypto\CertificateSigner.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Crypto\CertProperties.cs" />
     <Compile Include="Crypto\CertUtil.cs" />
     <Compile Include="Crypto\DisposableObject.cs" />
+    <Compile Include="Crypto\SymmetricKey.cs" />
     <Compile Include="Crypto\Utilities.cs" />
     <Compile Include="Crypto\Win32ErrorHelper.cs" />
     <Compile Include="Crypto\Win32Native.cs" />

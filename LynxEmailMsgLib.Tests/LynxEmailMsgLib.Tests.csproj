@@ -60,6 +60,8 @@
   <ItemGroup>
     <Compile Include="FindCertificatesTest.cs" />
     <Compile Include="CertificateSignDataTest.cs" />
+    <Compile Include="UnitTest_AesUtilitiesTest.cs" />
+    <Compile Include="UnitTest_SymmetricKeyTest.cs" />
     <Compile Include="UnitTest_NewCertificate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlDocTests.cs" />
