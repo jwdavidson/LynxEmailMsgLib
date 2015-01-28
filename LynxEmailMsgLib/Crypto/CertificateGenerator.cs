@@ -31,7 +31,7 @@ namespace LynxEmailMsgLib.Crypto
         /// <returns>Returns a pointer to the signed certificate</returns>
         internal static unsafe IntPtr CreateSelfSignedCertificatePtr(CertificateGenerationRequest request)
         {
-            if (request == null)
+            if (request == null || request.Subject.Length <= 0)
                 throw new ArgumentNullException("request");
 
             if (string.IsNullOrWhiteSpace(request.Subject))
