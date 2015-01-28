@@ -54,7 +54,7 @@
     <Compile Include="Crypto\DisposableObject.cs" />
     <Compile Include="Crypto\RsaUtilities.cs" />
     <Compile Include="Crypto\SymmetricKey.cs" />
-    <Compile Include="Crypto\Utilities.cs" />
+    <Compile Include="Crypto\StoreUtilities.cs" />
     <Compile Include="Crypto\Win32ErrorHelper.cs" />
     <Compile Include="Crypto\Win32Native.cs" />
     <Compile Include="Message.cs" />

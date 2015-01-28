@@ -10,16 +10,17 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace LynxEmailMsgLib.Crypto
 {
-    public class Utilities
+    public class StoreUtilities
     {
+        public enum SupportedFindTypes
+        {
+            ByName,
+            ByThumbprint
+        }
         public static bool StoreCert(StoreName name, StoreLocation loc, X509Certificate2 cert)
         {
-            if (name == null)
-                throw new ArgumentNullException("name");
             if (!Enum.IsDefined(typeof(StoreName), name))
                 throw new ArgumentOutOfRangeException("name");
-            if (name == null)
-                throw new ArgumentNullException("loc");
             if (!Enum.IsDefined(typeof(StoreLocation), loc))
                 throw new ArgumentOutOfRangeException("loc");
             if (cert == null || cert.Thumbprint.Length <= 0)
@@ -40,26 +41,37 @@ namespace LynxEmailMsgLib.Crypto
             }
         }
 
-        public static X509Certificate2 FindCertByName(StoreName name, StoreLocation loc, string certName)
+        public static X509Certificate2 FindCertBy(StoreName name, StoreLocation loc, SupportedFindTypes findType, string findItem)
         {
-            if (name == null)
-                throw new ArgumentNullException("name");
             if (!Enum.IsDefined(typeof(StoreName), name))
                 throw new ArgumentOutOfRangeException("name");
-            if (name == null)
-                throw new ArgumentNullException("loc");
             if (!Enum.IsDefined(typeof(StoreLocation), loc))
                 throw new ArgumentOutOfRangeException("loc");
-            if (string.IsNullOrEmpty(certName))
-                throw new ArgumentNullException("certName");
+            if (!Enum.IsDefined(typeof(SupportedFindTypes), findType))
+                throw new ArgumentOutOfRangeException("findType");
+            if (string.IsNullOrEmpty(findItem))
+                throw new ArgumentNullException("findItem");
 
             X509Store store = new X509Store(name, loc);
             store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
 
             try {
                 X509Certificate2Collection certCol = (X509Certificate2Collection)store.Certificates;
-                X509Certificate2Collection findCol = (X509Certificate2Collection)certCol.Find(X509FindType.FindBySubjectName, certName, true);
-                if (findCol.Count > 0) {
+                X509Certificate2Collection findCol;
+
+                switch (findType) {
+                    case SupportedFindTypes.ByName:
+                        findCol = (X509Certificate2Collection)certCol.Find(X509FindType.FindBySubjectName, findItem, true);
+                        break;
+                    case SupportedFindTypes.ByThumbprint:
+                        findCol = (X509Certificate2Collection)certCol.Find(X509FindType.FindByThumbprint, findItem, true);
+                        break;
+                    default:
+                        findCol = null;
+                        break;
+                }
+
+                if (findCol != null && findCol.Count > 0) {
                     return findCol[0];
                 } else return null;
             }
@@ -73,12 +85,8 @@ namespace LynxEmailMsgLib.Crypto
 
         public static X509Certificate2Collection FindCertsByOID(StoreName name, StoreLocation loc, string oid)
         {
-            if (name == null)
-                throw new ArgumentNullException("name");
             if (!Enum.IsDefined(typeof(StoreName), name))
                 throw new ArgumentOutOfRangeException("name");
-            if (name == null)
-                throw new ArgumentNullException("loc");
             if (!Enum.IsDefined(typeof(StoreLocation), loc))
                 throw new ArgumentOutOfRangeException("loc");
             if (string.IsNullOrEmpty(oid))
@@ -112,5 +120,6 @@ namespace LynxEmailMsgLib.Crypto
                 store.Close();
             }
         }
+
     }
 }

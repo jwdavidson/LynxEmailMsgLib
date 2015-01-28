@@ -22,7 +22,7 @@ namespace LynxEmailMsgClient
 
             Console.WriteLine("CA: " + CA);
 
-            bool success = LynxEmailMsgLib.Crypto.Utilities.StoreCert(StoreName.Root, StoreLocation.LocalMachine, CA);
+            bool success = LynxEmailMsgLib.Crypto.StoreUtilities.StoreCert(StoreName.Root, StoreLocation.LocalMachine, CA);
 
             //var subordinate = CreateSubordinate();
 

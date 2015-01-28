@@ -21,8 +21,6 @@ namespace LynxEmailMsgLib.Crypto
         const string OID_RSA_SHA512RSA = "1.2.840.113549.1.1.13";
         public static X509Certificate2 BuildCertificate(CertificateUse usage, string subjectName)
         {
-            if (usage == null)
-                throw new ArgumentNullException("usage");
             if (!Enum.IsDefined(typeof(CertificateUse), usage))
                 throw new ArgumentOutOfRangeException("usage");
             if (string.IsNullOrEmpty(subjectName))
