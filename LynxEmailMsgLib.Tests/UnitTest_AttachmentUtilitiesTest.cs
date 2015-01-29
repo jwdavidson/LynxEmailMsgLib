@@ -34,21 +34,21 @@ namespace LynxEmailMsgLib.Tests
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod5_CreateEncryptedAttachmentsArg1()
+        public void TestMethod5_CreateEncryptedAttachmentsArg2()
         {
-            bool success = AttachmentUtilities.CreateEncryptedAttachment(null, "testEmail", "recipientEmail");
+            bool success = AttachmentUtilities.CreateEncryptedAttachment("fileName", null, "testEmail", "recipientEmail");
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod6_CreateEncryptedAttachmentsArg2()
+        public void TestMethod6_CreateEncryptedAttachmentsArg3()
         {
-            bool success = AttachmentUtilities.CreateEncryptedAttachment(new byte[] {101, 99}, null, "recipientEmail");
+            bool success = AttachmentUtilities.CreateEncryptedAttachment("fileName", new byte[] {101, 99}, null, "recipientEmail");
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod7_CreateEncryptedAttachmentsArg3()
+        public void TestMethod7_CreateEncryptedAttachmentsArg4()
         {
-            bool success = AttachmentUtilities.CreateEncryptedAttachment(new byte[] {101, 99 }, "testEmail", null);
+            bool success = AttachmentUtilities.CreateEncryptedAttachment("fileName", new byte[] {101, 99 }, "testEmail", null);
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]

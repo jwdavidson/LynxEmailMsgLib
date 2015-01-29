@@ -5,6 +5,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace LynxEmailMsgLib.Crypto
 {
@@ -24,7 +26,7 @@ namespace LynxEmailMsgLib.Crypto
             return countEmailsProcessed;
         }
 
-        public static bool CreateEncryptedAttachment(byte[] bytesToEncrypt, string originatorEmail, string recipientEmail)
+        public static bool CreateEncryptedAttachment(string attachmentFileName, byte[] bytesToEncrypt, string originatorEmail, string recipientEmail)
         {
             if (bytesToEncrypt == null || bytesToEncrypt.Length <= 0)
                 throw new ArgumentNullException("bytesToEncrypt");
@@ -53,13 +55,20 @@ namespace LynxEmailMsgLib.Crypto
 
             byte[] cipherText = AesUtilities.EncryptStringToByteArray(toEncrypt.ToString(), aesKey.Key, aesKey.IV);
 
-            StringBuilder symmetricKey = new StringBuilder();
-            symmetricKey.AppendLine("<SymmetricKey>");
-            symmetricKey.AppendLine("<Key>" + Convert.ToBase64String(aesKey.Key) + "</Key>");
-            symmetricKey.AppendLine("<IV>" + Convert.ToBase64String(aesKey.IV) + "</IV>");
-            symmetricKey.AppendLine("</SymmetricKey>");
+            byte[] encryptedAesData = RsaUtilities.EncryptDataPublicKey(aesKey.Key, aesKey.IV, recipientCert);
+            byte[] encryptedAesKey = encryptedAesData.Take(512).ToArray();
+            byte[] encryptedAesIV = encryptedAesData.Skip(512).ToArray();
 
-            //byte[] encryptedSymmetricKey = RsaUtilities.EncryptDataPublicKey(symmetricKey.ToString(), recipientCert);
+            XDocument doc = new XDocument(
+                new XDeclaration("1.0", "utf-16", "true"),
+                new XElement("OriginatorCertificate", Convert.ToBase64String(originatorCertRawData)),
+                new XElement("RecipientCertThumbprint", recipientThumbprint),
+                new XElement("cipherText", Convert.ToBase64String(cipherText)),
+                new XElement("SymmetricKey",
+                    new XElement("EncryptedAesKey", Convert.ToBase64String(encryptedAesKey)),
+                    new XElement("EncryptedAesIV", Convert.ToBase64String(encryptedAesIV))));
+
+            doc.Save(attachmentFileName + "_" + recipientEmail + ".xml");
 
             return success;
         }
