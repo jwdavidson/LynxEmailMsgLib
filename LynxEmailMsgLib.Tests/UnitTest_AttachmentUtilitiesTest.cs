@@ -54,19 +54,7 @@ namespace LynxEmailMsgLib.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMethod8_CreateDecryptedFileArg1()
         {
-            bool success = AttachmentUtilities.CreateDecryptedFile(null, "testEmail", "recipientEmail");
-        }
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod9_CreateDecryptedFileArg2()
-        {
-            bool success = AttachmentUtilities.CreateDecryptedFile("fileName", null, "recipientEmail");
-        }
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod10_CreateDecryptedFileArg3()
-        {
-            bool success = AttachmentUtilities.CreateDecryptedFile("fileName", "testEmail", null);
+            bool success = AttachmentUtilities.CreateDecryptedFile(null);
         }
     }
 }
