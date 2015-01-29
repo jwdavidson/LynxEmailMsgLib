@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -19,7 +22,7 @@ namespace LynxEmailMsgLib.Crypto
             if (originatorCert.RawData == null || originatorCert.RawData.Length <= 0)
                 throw new CryptographicException("originatorCert.RawData");
 
-            byte[] signature;
+            byte[] signature = null;
             using (RSACryptoServiceProvider privateKp = (RSACryptoServiceProvider)originatorCert.PrivateKey) {
                 using (SHA512Managed shaManaged = new SHA512Managed()) {
 
@@ -49,6 +52,46 @@ namespace LynxEmailMsgLib.Crypto
                 }
             }
             return valid;
+        }
+
+        public static byte[] EncryptDataPublicKey(byte[] dataKeyToEncrypt, byte[] dataIVToEncrypt, X509Certificate2 recipientCert)
+        {
+            if (dataKeyToEncrypt == null || dataKeyToEncrypt.Length <= 0)
+                throw new ArgumentNullException("dataKeyToEncrypt");
+            if (dataIVToEncrypt == null || dataIVToEncrypt.Length <= 0)
+                throw new ArgumentNullException("dataIVToEncrypt");
+            if (recipientCert == null)
+                throw new ArgumentNullException("recipientCert");
+            if (recipientCert.RawData == null || recipientCert.RawData.Length <= 0)
+                throw new CryptographicException("recipientCert.RawData");
+
+            byte[] encryptedData;
+
+            using (RSACryptoServiceProvider publicKp = (RSACryptoServiceProvider)recipientCert.PublicKey.Key) {
+                encryptedData = publicKp.Encrypt(dataKeyToEncrypt, true);
+                encryptedData = encryptedData.Concat(publicKp.Encrypt(dataIVToEncrypt, true)).ToArray();
+            }
+            return encryptedData;
+        }
+
+        public static byte[] DecryptDataPrivateKey(byte[] dataKeyToDecrypt, byte[] dataIVToDecrypt, X509Certificate2 recipientCert)
+        {
+            if (dataKeyToDecrypt == null || dataKeyToDecrypt.Length <= 0)
+                throw new ArgumentNullException("dataKeyToDecrypt");
+            if (dataIVToDecrypt == null || dataIVToDecrypt.Length <= 0)
+                throw new ArgumentNullException("dataIVToDecrypt");
+            if (recipientCert == null)
+                throw new ArgumentNullException("recipientCert");
+            if (!recipientCert.HasPrivateKey)
+                throw new CryptographicException("recipientCert.PrivateKey");
+
+            byte[] decryptedData;
+
+            using (RSACryptoServiceProvider privateKp = (RSACryptoServiceProvider)recipientCert.PrivateKey) {
+                decryptedData = privateKp.Decrypt(dataKeyToDecrypt, true);
+                decryptedData = decryptedData.Concat(privateKp.Decrypt(dataIVToDecrypt, true)).ToArray();
+            }
+            return decryptedData;
         }
     }
 }

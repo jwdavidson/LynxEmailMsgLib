@@ -30,7 +30,7 @@ namespace LynxEmailMsgLib.Crypto
                 ProviderName = "Microsoft Enhanced RSA and AES Cryptographic Provider",
                 ProviderType = 24,
                 KeyContainerName = Guid.NewGuid().ToString(),
-                KeyNumber = (int)KeyNumber.Signature,
+                KeyNumber = (int)KeyNumber.Exchange,
                 Flags = CspProviderFlags.UseMachineKeyStore
             };
 

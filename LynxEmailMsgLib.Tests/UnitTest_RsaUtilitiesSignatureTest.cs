@@ -10,7 +10,7 @@ using LynxEmailMsgLib.Crypto;
 namespace LynxEmailMsgLib.Tests
 {
     [TestClass]
-    public class UnitTest_RsaUtilitiesTest
+    public class UnitTest_RsaUtilitiesSignatureTest
     {
 
         internal static X509Certificate2 testCert;

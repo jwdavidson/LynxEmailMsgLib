@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Crypto\AesUtilities.cs" />
+    <Compile Include="Crypto\AttachmentUtilities.cs" />
     <Compile Include="Crypto\CertificateGenerationRequest.cs" />
     <Compile Include="Crypto\CertificateGenerator.cs" />
     <Compile Include="Crypto\CertificateSigner.cs" />

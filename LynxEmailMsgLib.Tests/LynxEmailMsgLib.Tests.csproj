@@ -58,10 +58,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="UnitTest_RsaUtilitiesEncryptionTest.cs" />
+    <Compile Include="UnitTest_AttachmentUtilitiesTest.cs" />
     <Compile Include="UnitTest_StoreUtilitiesStoreCertTest.cs" />
     <Compile Include="UnitTest_StoreUtilitiesFindTest.cs" />
     <Compile Include="UnitTest_CertificateUtilitiesTest.cs" />
-    <Compile Include="UnitTest_RsaUtilitiesTest.cs" />
+    <Compile Include="UnitTest_RsaUtilitiesSignatureTest.cs" />
     <Compile Include="UnitTest_AesUtilitiesTest.cs" />
     <Compile Include="UnitTest_SymmetricKeyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
