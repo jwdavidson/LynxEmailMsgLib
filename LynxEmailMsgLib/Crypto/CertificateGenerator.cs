@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -22,6 +23,17 @@ namespace LynxEmailMsgLib.Crypto
             var ptr = CreateSelfSignedCertificatePtr(request);
 
             return new X509Certificate2(ptr);
+        }
+        /// <summary>
+        /// Create a self signed certificate with a SecureString password
+        /// </summary>
+        /// <param name="request">A request to generate certificate</param>
+        /// <returns>Returns a self signed certificate</returns>
+        public static X509Certificate2 CreateSelfSignedCertificate(CertificateGenerationRequest request, SecureString passPhrase)
+        {
+            var ptr = CreateSelfSignedCertificatePtr(request);
+
+            return new X509Certificate2(new X509Certificate2(ptr).RawData, passPhrase);
         }
 
         /// <summary>
@@ -53,7 +65,7 @@ namespace LynxEmailMsgLib.Crypto
                     ProviderType = PROV_RSA_AES,
                     KeyContainerName = Guid.NewGuid().ToString(),
                     KeyNumber = (int)KeyNumber.Exchange,
-                    Flags = CspProviderFlags.UseMachineKeyStore
+                    Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseArchivableKey
                 };
 
             var keySize = request.KeySize;

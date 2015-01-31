@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +17,8 @@ namespace LynxEmailMsgLib.Tests
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
+            char[] arr = "Wi7ardry!".ToCharArray();
+            SecureString passPhrase = CreateSecureString(arr);
             testCert = CertificateUtilities.BuildCertificate(CertificateUtilities.CertificateUse.RootServer, "RSTestFind");
         }
 
@@ -57,7 +60,7 @@ namespace LynxEmailMsgLib.Tests
         [TestMethod]
         public void TestMethod6_StoreCertTest()
         {
-            bool valid = StoreUtilities.StoreCert(StoreName.Root, StoreLocation.LocalMachine, testCert);
+            bool valid = StoreUtilities.StoreCert(StoreName.My, StoreLocation.CurrentUser, testCert);
             Assert.IsTrue(valid);
         }
 
@@ -66,9 +69,22 @@ namespace LynxEmailMsgLib.Tests
         {
             X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadWrite | OpenFlags.OpenExistingOnly);
-            store.Remove(testCert);
+            //store.Remove(testCert);
             store.Close();
             testCert = null;
         }
+
+        internal static unsafe SecureString CreateSecureString(char[] arrPassPhrase)
+        {
+            SecureString passPhrase;
+
+            fixed (char* pChars = arrPassPhrase)
+                passPhrase = new SecureString(pChars, arrPassPhrase.Length);
+
+            passPhrase.MakeReadOnly();
+
+            return passPhrase;
+        }
+
     }
 }

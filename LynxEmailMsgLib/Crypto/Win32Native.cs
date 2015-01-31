@@ -14,6 +14,7 @@ namespace LynxEmailMsgLib.Crypto
         public const uint AT_SIGNATURE = 0x00000002;
 
         public const string OID_RSA_SHA256RSA = "1.2.840.113549.1.1.11";
+        public const string OID_RSA_SHA512RSA = "1.2.840.113549.1.1.13";
         public const string szOID_ENHANCED_KEY_USAGE = "2.5.29.37";
 
         public const uint CERT_X500_NAME_STR = 3;

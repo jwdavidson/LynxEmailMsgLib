@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LynxEmailMsgLib.Crypto;
 
@@ -8,6 +10,22 @@ namespace LynxEmailMsgLib.Tests
     [TestClass]
     public class UnitTest_AttachmentUtilitiesTest
     {
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            X509Certificate2 gmailCert = StoreUtilities.FindCertBy(StoreName.Root, StoreLocation.CurrentUser, StoreUtilities.SupportedFindTypes.ByName, "jwdavidson@gmail.com");
+            X509Certificate2 macCert = StoreUtilities.FindCertBy(StoreName.Root, StoreLocation.CurrentUser, StoreUtilities.SupportedFindTypes.ByName, "jw_davidson@me.com");
+            if (gmailCert == null || gmailCert.SubjectName == null) {
+                gmailCert = CertificateUtilities.BuildCertificate(CertificateUtilities.CertificateUse.Client, "jwdavidson@gmail.com");
+                bool valid = StoreUtilities.StoreCert(StoreName.Root, StoreLocation.CurrentUser, gmailCert);
+            }
+            if (macCert == null || macCert.SubjectName == null) {
+                macCert = CertificateUtilities.BuildCertificate(CertificateUtilities.CertificateUse.Client, "jw_davidson@me.com");
+                bool valid = StoreUtilities.StoreCert(StoreName.Root, StoreLocation.CurrentUser, macCert);
+            }
+
+        }
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMethod1_CreateEncryptedAttachmentsArg1()
@@ -55,6 +73,32 @@ namespace LynxEmailMsgLib.Tests
         public void TestMethod8_CreateDecryptedFileArg1()
         {
             bool success = AttachmentUtilities.CreateDecryptedFile(null);
+        }
+
+        [TestMethod]
+        public void TestMethod9_CreateEncryptedAttachment()
+        {
+            string fileName = @"C:\Users\John\Documents\Test XML.docx";
+            int cntEmail = AttachmentUtilities.CreateEncryptedAttachments(fileName, "jwdavidson@gmail.com", new List<string> {"jw_davidson@me.com"});
+            Assert.IsTrue(cntEmail == 1);
+        }
+
+        [TestMethod]
+        public void TestMethod10_CreateDecryptedFile()
+        {
+            bool valid = AttachmentUtilities.CreateDecryptedFile(@"C:\Test XML_docx_jw_davidson@me_com.xml");
+            Assert.IsTrue(valid);
+        }
+        internal static unsafe SecureString CreateSecureString(char[] arrPassPhrase)
+        {
+            SecureString passPhrase;
+
+            fixed (char* pChars = arrPassPhrase)
+                passPhrase = new SecureString(pChars, arrPassPhrase.Length);
+
+            passPhrase.MakeReadOnly();
+
+            return passPhrase;
         }
     }
 }

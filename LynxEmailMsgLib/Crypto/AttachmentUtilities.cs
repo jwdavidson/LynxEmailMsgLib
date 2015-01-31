@@ -57,7 +57,7 @@ namespace LynxEmailMsgLib.Crypto
 
             try {
                 X509Certificate2 origCert = StoreUtilities.FindCertBy(StoreName.Root, StoreLocation.CurrentUser, StoreUtilities.SupportedFindTypes.ByName, originatorEmail);
-                X509Certificate2 recipientCert = StoreUtilities.FindCertBy(StoreName.My, StoreLocation.CurrentUser, StoreUtilities.SupportedFindTypes.ByName, recipientEmail);
+                X509Certificate2 recipientCert = StoreUtilities.FindCertBy(StoreName.Root, StoreLocation.CurrentUser, StoreUtilities.SupportedFindTypes.ByName, recipientEmail);
 
                 recipientEmail = recipientEmail.Replace(".", "_");
 
@@ -68,11 +68,11 @@ namespace LynxEmailMsgLib.Crypto
                 SymmetricKey aesKey = new SymmetricKey();
 
                 StringBuilder toEncrypt = new StringBuilder();
-                toEncrypt.Append("<PlainText>");
+                toEncrypt.Append("<CipherText><PlainText>");
                 toEncrypt.Append(Convert.ToBase64String(bytesToEncrypt));
                 toEncrypt.AppendLine("</PlainText>");
                 toEncrypt.AppendLine("<SafeFileName>" + attachmentFileName + "</SafeFileName>");
-                toEncrypt.AppendLine("<Signature>" + Convert.ToBase64String(signature) + "</Signature>");
+                toEncrypt.AppendLine("<Signature>" + Convert.ToBase64String(signature) + "</Signature></CipherText>");
 
                 byte[] cipherText = AesUtilities.EncryptStringToByteArray(toEncrypt.ToString(), aesKey.Key, aesKey.IV);
 
@@ -81,15 +81,16 @@ namespace LynxEmailMsgLib.Crypto
                 byte[] encryptedAesIV = encryptedAesData.Skip(512).ToArray();
 
                 XDocument doc = new XDocument(
-                    new XDeclaration("1.0", "utf-16", "true"),
-                    new XElement("OriginatorCertificate", Convert.ToBase64String(originatorCertRawData)),
-                    new XElement("RecipientCertThumbprint", recipientThumbprint),
-                    new XElement("cipherText", Convert.ToBase64String(cipherText)),
-                    new XElement("SymmetricKey",
-                        new XElement("EncryptedAesKey", Convert.ToBase64String(encryptedAesKey)),
-                        new XElement("EncryptedAesIV", Convert.ToBase64String(encryptedAesIV))));
+                    new XDeclaration("1.0", "utf-8", null),
+                    new XElement("Root",
+                        new XElement("OriginatorCertificate", Convert.ToBase64String(originatorCertRawData)),
+                        new XElement("RecipientCertThumbprint", recipientThumbprint),
+                        new XElement("EncryptedCipherText", Convert.ToBase64String(cipherText)),
+                        new XElement("SymmetricKey",
+                            new XElement("EncryptedAesKey", Convert.ToBase64String(encryptedAesKey)),
+                            new XElement("EncryptedAesIV", Convert.ToBase64String(encryptedAesIV)))));
 
-                doc.Save(attachmentFileName + "_" + recipientEmail + ".xml");
+                doc.Save(attachmentFileName.Replace(".", "_") + "_" + recipientEmail + ".xml");
                 success = true;
             }
             catch {
@@ -111,7 +112,7 @@ namespace LynxEmailMsgLib.Crypto
 
                 byte[] originatorCertRawData = Convert.FromBase64String(encryptedFile.Elements().Where(e => e.Name.LocalName == "OriginatorCertificate").Single().Value);
                 string recipientThumbprint = encryptedFile.Elements().Where(e => e.Name.LocalName == "RecipientCertThumbprint").Single().Value;
-                byte[] cipherText = Convert.FromBase64String(encryptedFile.Elements().Where(e => e.Name.LocalName == "cipherText").Single().Value);
+                byte[] cipherText = Convert.FromBase64String(encryptedFile.Elements().Where(e => e.Name.LocalName == "EncryptedCipherText").Single().Value);
 
                 XElement symKeyElement = encryptedFile.Elements().Where(e => e.Name.LocalName == "SymmetricKey").Single();
                 byte[] encryptedAesKey = Convert.FromBase64String(symKeyElement.Elements().Where(e => e.Name.LocalName == "EncryptedAesKey").Single().Value);

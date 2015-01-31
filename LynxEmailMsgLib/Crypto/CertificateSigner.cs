@@ -64,7 +64,7 @@ namespace LynxEmailMsgLib.Crypto
 
                 Win32Native.CRYPT_ALGORITHM_IDENTIFIER signatureAlgo = new Win32Native.CRYPT_ALGORITHM_IDENTIFIER()
                 {
-                    pszObjId = string.IsNullOrWhiteSpace(request.SignatureAlgorithm) ? Win32Native.OID_RSA_SHA256RSA : request.SignatureAlgorithm
+                    pszObjId = string.IsNullOrWhiteSpace(request.SignatureAlgorithm) ? Win32Native.OID_RSA_SHA512RSA : request.SignatureAlgorithm
                 };
 
                 // apply new issuer
